@@ -4,7 +4,26 @@
 session_start();
 if (/* isset($_SESSION['REST-admin']) */true) {
 
-
+// Verifica se há uma mensagem de sucesso na sessão e exibe
+if (isset($_SESSION['mensagem_sucesso'])) {
+    echo '
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 600px; font-size: 1.2rem; z-index: 9999;">
+        <strong>Sucesso!</strong> ' . $_SESSION['mensagem_sucesso'] . '
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    
+        <script>
+        // Remove a mensagem após 5 segundos
+        setTimeout(function() {
+            $(".alert").alert("close");
+        }, 5000);
+    </script>
+    ';
+    // Limpa a mensagem de sucesso após exibi-la
+    unset($_SESSION['mensagem_sucesso']);
+}
 
 ?>
     <!DOCTYPE html>

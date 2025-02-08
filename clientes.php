@@ -22,7 +22,7 @@ $stmt->fetch();
 $stmt->close();
 
 // Query de pesquisa (ajustar para sua estrutura de tabelas)
-$sql = "SELECT * FROM cliente LIMIT $limite OFFSET $offset";
+$sql = "SELECT * FROM cliente";
 $resultado = $conn->query($sql);
 
 // Fecha a conexão
@@ -106,16 +106,17 @@ session_start();
                                                             <th>Nome</th>
                                                             <th>Género</th>
                                                             <th>BI</th>
+                                                            <th>Acções</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php while ($cliente = $resultado->fetch_assoc()): ?>
                                                             <tr>
-                                                                <td><?= htmlspecialchars($cliente['nome']) ?></td>
+                                                                <td ><a id="nome" href="cliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>"><?= htmlspecialchars($cliente['nome']) ?></a></td>
                                                                 <td><?= htmlspecialchars($cliente['genero']) ?></td>
                                                                 <td><?= htmlspecialchars($cliente['bi']) ?></td>
                                                                 <td>
-                                                                    <a href="cliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>" class="btn btn-info">Ver Detalhes</a>
+                                                                    <a href="updateCliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>" class="btn btn-warning">Editar</a>
                                                                 </td>
                                                             </tr>
                                                         <?php endwhile; ?>
@@ -237,14 +238,20 @@ session_start();
         padding: 10px;
     }
 
-
-
     .erro-info span {
         font-size: 3.5rem;
     }
 
     #nome {
         color: #333;
+    }
+    #nome{
+        color:rgb(71, 73, 73);
+        font-weight: 700;
+    }
+    #nome:hover{
+        color: #2c72ce;
+        font-weight: 700;
     }
 </style>
 

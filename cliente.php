@@ -106,17 +106,18 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                     <div class="col-8">
                                         <div class="container card">
 
-                                            <div class="card-body" style="overflow-y: auto;">
+                                            <div class="card-body" style="overflow-y: auto; max-height: 250px; position: sticky; top: 0;">
                                                 <!-- Botão para invocar o modal -->
-                                                <a href="#" class="btn btn-info" data-toggle="modal" data-target="#editClientModal">Editar</a>
+                                                <!-- <a href="#" class="btn btn-info" data-toggle="modal" data-target="#editClientModal">Editar</a> -->
 
                                                 <?php if (!empty($cliente)): ?>
                                                     <!-- Detalhes do Cliente -->
-                                                    <h3 id="nome"> <?= htmlspecialchars($cliente['nome']) ?></h3> <hr>
+                                                    <h3 id="nome" style="position: sticky; top: 0; background: white; height: 50px;">
+                                                        <?= htmlspecialchars($cliente['nome']) ?><hr>
+                                                    </h3>
+                                                    
                                                     <p> <strong> NIF</strong> <?= htmlspecialchars($cliente['nif']) ?></p>
                                                     <p> <strong> Morada:</strong> <?= htmlspecialchars($cliente['morada']) ?></p>
-                                                    
-
                                                     <p> <strong> Género:</strong> <?= htmlspecialchars($cliente['genero']) ?></p>
                                                     <p> <strong> BI:</strong> <?= htmlspecialchars($cliente['bi']) ?></p>
                                                     <p> <strong> Data Nascimento:</strong> <?= htmlspecialchars($cliente['nascimento']) ?></p>
@@ -132,7 +133,7 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                                 <?php else: ?>
                                                     <p>Cliente não encontrado.</p>
                                                 <?php endif; ?>
-                                                <button class="btn btn-primary" id="button"><a href="clientes.php" class="btn-lista">Ver a lista</a></button>
+                                                <!-- <button class="btn btn-primary" id="button"><a href="clientes.php" class="btn-lista">Ver a lista</a></button> -->
                                             </div>
 
 
@@ -140,27 +141,157 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                     </div>
                                     <div class="col-4">
                                         <label></label>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="info-display">
-                                                    <div class="info-item" style="font-weight:bold;"> <span
-                                                            class="info-icon">&#9432;</span>
-                                                        <span>Todos:</span> <span
-                                                            style="float:right;margin-top: 12px;"><?php echo $totalClientes; ?></span> <!-- Para ilustrar o total de clientes existentes-->
+                                            <label></label>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="info-display">
+                                                        <div class="info-item" style="font-weight:bold;"> <span
+                                                                class="info-icon">&#9432;</span>
+                                                            <span>Saldo atual:</span> <span
+                                                                style="float:right;margin-top: 12px;">500.000</span>
+                                                        </div>
+                                                        <div class="info-item"> <span class="info-icon">&#9432;</span>
+                                                            <span>Conta:</span> <span
+                                                                style="float:right;margin-top: 12px;">Particular</span>
+                                                        </div>
+                                                        <div class="info-item"> <span class="info-icon">&#9432;</span>
+                                                            <span>Desde:</span> <span
+                                                                style="float:right;margin-top: 12px;">23H76M766 17843</span>
+                                                        </div>
                                                     </div>
-
                                                 </div>
-                                            </div>
-                                        </div>
-
-
-
-                                        <a class="btn btn-lg btn-primary form-control" href="createCliente.php">Cadastrar Clientes</a>
+                                        <!-- <a class="btn btn-lg btn-primary form-control" href="createCliente.php">Cadastrar Clientes</a> -->
                                     </div>
                                 </div>
                             </div>
 
                             <!-- /ROW 1 -->
+                    </section>
+                    <section class="container">
+                        <div class="row">
+                            <div class="col-3">
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6"> <select class="form-control" id="year">
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                            <!-- Adicione mais anos conforme necessário -->
+                                        </select> </div>
+                                    <div class="col-md-6"> <select class="form-control" id="month">
+                                            <option value="Janeiro">Janeiro</option>
+                                            <option value="Fevereiro">Fevereiro</option>
+                                            <!-- Adicione mais meses conforme necessário -->
+                                        </select> </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <ul id="tabs" class="nav nav-tabs">
+                                    <li class="nav-item"><a href="" data-target="#todas-transacoes" data-toggle="tab"
+                                            class="nav-link small text-uppercase active">Todas</a></li>
+                                    <li class="nav-item"><a href="" data-target="#entrada-transacoes" data-toggle="tab"
+                                            class="nav-link small text-uppercase">Entrada</a></li>
+                                    <li class="nav-item"><a href="" data-target="#saida-transacoes" data-toggle="tab"
+                                            class="nav-link small text-uppercase">Saida</a></li>
+                                </ul>
+                                <br>
+                                <div id="tabsContent" class="tab-content" style="overflow-y:scroll;max-height:500px">
+                                    <div id="todas-transacoes" class="tab-pane fade active show">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Descrição</th>
+                                                        <th>ID Transação</th>
+                                                        <th>Tipo</th>
+                                                        <th>Cliente</th>
+                                                        <th>Data</th>
+                                                        <th>Valor</th>
+                                                        <th>Comprovativo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><i class="fas fa-arrow-down text-danger"></i></td>
+                                                        <td> Levantamento </td>
+                                                        <td>#12548796</td>
+                                                        <td> Saída</td>
+                                                        <td>999 999 999</td>
+                                                        <td>28 Jan, 12.30 AM</td>
+                                                        <td class="text-danger">- 2500</td>
+                                                        <td><a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Baixar</a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><i class="fas fa-arrow-up text-success"></i></td>
+                                                        <td>Depósito</td>
+                                                        <td>#12548796</td>
+                                                        <td> Entrada</td>
+                                                        <td>999 999 999</td>
+                                                        <td>25 Jan, 10.40 PM</td>
+                                                        <td class="text-success">+ 750</td>
+                                                        <td><a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Baixar</a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><i class="fas fa-arrow-down text-danger"></i>
+                                                        </td>
+                                                        <td> Levantamento
+                                                        </td>
+                                                        <td>#12548796</td>
+                                                        <td> Saída</td>
+                                                        <td>999 999 999</td>
+                                                        <td>20 Jan, 10.40 PM</td>
+                                                        <td class="text-danger">- 150</td>
+                                                        <td><a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Baixar</a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><i class="fas fa-arrow-down text-danger"></i>
+                                                        </td>
+                                                        <td>Levantamento</td>
+                                                        <td>#12548796</td>
+                                                        <td> Saída</td>
+                                                        <td>999 999 999</td>
+                                                        <td>15 Jan, 03.29 PM</td>
+                                                        <td class="text-danger">- 1050</td>
+                                                        <td><a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Baixar</a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><i class="fas fa-arrow-up text-success"></i>
+                                                        </td>
+                                                        <td>Depósito</td>
+                                                        <td>#12548796</td>
+                                                        <td> Entrada</td>
+                                                        <td>999 999 999</td>
+                                                        <td>14 Jan, 10.40 PM</td>
+                                                        <td class="text-success">+ 840</td>
+                                                        <td><a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Baixar</a></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div id="entrada-transacoes" class="tab-pane fade">
+
+                                    </div>
+                                    <div id="saida-transacoes" class="tab-pane fade">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-3">
+                                <button class="btn btn-lg btn-primary form-control">Baixar Extrato</button>
+                                <button class="btn btn-lg btn-danger form-control">Enviar Extrato ao Cliente</button>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn btn-lg btn-primary form-control">Receber Numerário</button>
+                                <button class="btn btn-lg btn-danger form-control">Bloquear agente</button>
+                            </div>
+                        </div>
+                    </div>
 
 
                     </section>

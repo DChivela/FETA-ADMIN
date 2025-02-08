@@ -1,10 +1,34 @@
 <!-- inicialize the db -->
 <?php
 
-session_start();
-if (/* isset($_SESSION['REST-admin']) */ true) {
+// Conexão à base de dados
+// $conn = new mysqli("localhost", "root", "", "fetafacil");
 
-   
+// if ($conn->connect_error) {
+//     die("Erro de conexão: " . $conn->connect_error);
+// }
+
+// $limite = 5;
+// $pagina = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
+// $offset = ($pagina - 1) * $limite;
+
+
+// Query para obter o total de clientes
+// $sqlTotal = "SELECT COUNT(*) AS total FROM cliente";
+// $stmt = $conn->prepare($sqlTotal);
+// $stmt->execute();
+// $stmt->bind_result($totalClientes);
+// $stmt->fetch();
+// $stmt->close();
+
+// Query de pesquisa (ajustar para sua estrutura de tabelas)
+// $sql = "SELECT * FROM cliente LIMIT $limite OFFSET $offset";
+// $resultado = $conn->query($sql);
+
+// Fecha a conexão
+// $conn->close();
+
+// session_start();
 
 ?>
 <!DOCTYPE html>
@@ -202,7 +226,7 @@ if (/* isset($_SESSION['REST-admin']) */ true) {
     padding: 10px;
 }
 
-.erro-info {}
+/*.erro-info {}*/
 
 .erro-info span {
     font-size: 3.5rem;
@@ -210,5 +234,7 @@ if (/* isset($_SESSION['REST-admin']) */ true) {
 </style>
 
 </html>
-<?php } else { 
- }
+<?php 
+
+// } else { 
+//  }
