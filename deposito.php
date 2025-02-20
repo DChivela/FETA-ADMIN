@@ -51,7 +51,7 @@ if (/* isset($_SESSION['REST-admin']) */true) {
     <head>
         <meta charset="UTF-8">
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-        <title>Levantamento</title>
+        <title>Depósito</title>
 
         <!-- General CSS Files -->
         <link rel="stylesheet" href="assets/modules/bootstrap/css/bootstrap.min.css">
@@ -94,7 +94,7 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                         <div class="section-body">
                             <br>
                             <!-- ROW 1 -->
-                            <form id="levantamentoForm" method="post" action="processa_levantamento.php">
+                            <form id="depositoForm" method="post" action="processa_deposito.php">
                                 <div class="container">
                                     <div class="row row-cols-2">
                                         <div class="col-8">
@@ -264,7 +264,7 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                             <div class="container">
                                                 <div class="row row-cols-2">
                                                     <div class="col-12">
-                                                        <label>Total a levantar</label>
+                                                        <label>Total a depositar</label>
                                                         <div class="card">
                                                             <div class="card-body" style="height:150px;">
                                                                 <input type="number"
@@ -282,14 +282,14 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                                                     style="width:100%;height: 100%;text-align:center;font-size:3.5rem"
                                                                     class="form-control" id="totalNotas" readonly>
                                                             </div>
-                                                            <!-- Botão para confirmar levantamento -->
-                                                            <button id="btnConfirmar" class="btn btn-success btn-lg float-right" data-toggle="modal" style="margin-top:20px; display:none;" onclick="mostrarConfirmacao()">Confirmar Levantamento</button>
+                                                            <!-- Botão para confirmar Depósito -->
+                                                            <button id="btnConfirmar" class="btn btn-success btn-lg float-right" data-toggle="modal" style="margin-top:20px; display:none;" onclick="mostrarConfirmacao()">Confirmar Depósito</button>
 
                                                             <!-- Área para exibir mensagem de erro, se necessário -->
                                                             <div id="erroInfo" style="color:red; margin-top:10px; display:none;">
                                                                 <span>ERRO</span> <br>
                                                                 <p class="erro-info">TOTAL DAS NOTAS É MAIOR QUE
-                                                                    O MONTANTE A LEVANTAR</p>
+                                                                    O MONTANTE A DEPOSITAR</p>
                                                             </div>
                                                         </div>
 
@@ -310,16 +310,16 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                                     <div class="card">
                                                         <div class="card-body">
                                                             <h2 class="text-center">
-                                                                Confirme o valor do levantamento <br>
+                                                                Confirme o valor do depósito <br>
                                                                 e a correspondência das notas
                                                             </h2>
                                                             <br>
-                                                            <h1 id="valorLevantamento" class="text-success text-center" style="font-size:3.5rem;"></h1>
+                                                            <h1 id="valorDeposito" class="text-success text-center" style="font-size:3.5rem;"></h1>
                                                             <ul id="listaNotas" class="list-group list-group-flush"></ul>
                                                         </div>
                                                     </div>
-                                                    <button class="btn btn-light btn-lg"> <a href="levantamento.php">Voltar</a></button>
-                                                    <button class="btn btn-primary btn-lg float-right" data-toggle="modal" data-target="#confirmar"> Fazer Levantamento</button>
+                                                    <button class="btn btn-light btn-lg"> <a href="deposito.php">Voltar</a></button>
+                                                    <button class="btn btn-primary btn-lg float-right" data-toggle="modal" data-target="#confirmar"> Fazer Depósito</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -372,7 +372,7 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                 </div>
                 <div class="modal-body">
                     <h1>Confirmar
-                        levantamento</h1>
+                        Depósito</h1>
                     <button type="button" class="btn btn-primary form-control">Confirmar por aplicativo</button> <br><br>
                     <button type="button" class="btn btn-info form-control">Confirmar por USSD</button>
                 </div>
@@ -484,7 +484,7 @@ if (/* isset($_SESSION['REST-admin']) */true) {
         });
 
         // Verifica se um cliente foi selecionado ao submeter o formulário
-        document.getElementById('levantamentoForm').addEventListener('submit', function(event) {
+        document.getElementById('depositoForm').addEventListener('submit', function(event) {
             var clientId = document.getElementById('cliente_identificador').value;
             if (clientId === "") {
                 alert("Por favor, selecione um cliente na tabela antes de submeter o formulário.");
@@ -535,8 +535,8 @@ if (/* isset($_SESSION['REST-admin']) */true) {
             var valorTotal = document.getElementById('total').value;
             var listaNotas = document.getElementById('listaNotas');
 
-            // Atualiza o valor do levantamento no container de confirmação
-            document.getElementById('valorLevantamento').innerText = totalNotas + " AKZ";
+            // Atualiza o valor do Depósito no container de confirmação
+            document.getElementById('valorDeposito').innerText = totalNotas + " AKZ";
 
             // Limpa a lista antes de adicionar novos itens
             listaNotas.innerHTML = '';

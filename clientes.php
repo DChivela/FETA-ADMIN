@@ -112,11 +112,13 @@ session_start();
                                                     <tbody>
                                                         <?php while ($cliente = $resultado->fetch_assoc()): ?>
                                                             <tr>
-                                                                <td ><a id="nome" href="cliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>"><?= htmlspecialchars($cliente['nome']) ?></a></td>
+                                                                <td><a id="nome" href="cliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>"><?= htmlspecialchars($cliente['nome']) ?></a></td>
                                                                 <td><?= htmlspecialchars($cliente['genero']) ?></td>
                                                                 <td><?= htmlspecialchars($cliente['bi']) ?></td>
                                                                 <td>
-                                                                    <a href="updateCliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>" class="btn btn-warning">Editar</a>
+                                                                    <a href="updateCliente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>"
+                                                                        class="btn btn-warning">Editar
+                                                                    </a>
                                                                 </td>
                                                             </tr>
                                                         <?php endwhile; ?>
@@ -136,9 +138,9 @@ session_start();
                                                 <div class="info-item" style="font-weight:bold;"> <span
                                                         class="info-icon">&#9432;</span>
                                                     <span>Todos:</span> <span
-                                                        style="float:right;margin-top: 12px;"><?php echo $totalClientes;?></span>
+                                                        style="float:right;margin-top: 12px;"><?php echo $totalClientes; ?></span>
                                                 </div>
- 
+
                                             </div>
                                         </div>
                                     </div>
@@ -245,11 +247,13 @@ session_start();
     #nome {
         color: #333;
     }
-    #nome{
-        color:rgb(71, 73, 73);
+
+    #nome {
+        color: rgb(71, 73, 73);
         font-weight: 700;
     }
-    #nome:hover{
+
+    #nome:hover {
         color: #2c72ce;
         font-weight: 700;
     }

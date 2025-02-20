@@ -3,104 +3,103 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Verifica se o termo foi enviado
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    // Conexão à base de dados
+
     $conn = new mysqli("localhost", "root", "", "fetafacil");
 
     if ($conn->connect_error) {
         die("Erro de conexão: " . $conn->connect_error);
     }
 
-    // Busca os detalhes do cliente pelo ID
     $sql = "SELECT * FROM cliente WHERE identificador = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
     $stmt->execute();
 
     $resultado = $stmt->get_result();
-    // Armazena os resultados
     $cliente = $resultado->fetch_assoc();
-    
-    $stmt->close();
-    // Fecha a conexão
-    // $stmt->close();
-    $conn->close();
+
+    if (!$cliente) { // Verifica se o cliente foi encontrado
+        header("Location: cliente.php"); // Ou uma página de erro mais apropriada
+        exit;
+    }
 
 } else {
-    //Redireciona para a página caso nenhum ID seja encontrado.
     header("Location: cliente.php");
     exit;
 }
-    // Verifica se o formulário foi submetido
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Captura e valida os dados enviados pelo formulário
-        // $identificador = uniqid();
-        $bi = $_POST['bi'] ?? null;
-        $nome = $_POST['nome'] ?? null;
-        $genero = $_POST['genero'] ?? null;
-        $nascimento = $_POST['Nascimento'] ?? null;
-        $altura = $_POST['altura'] ?? null;
-        $estado_civil = $_POST['estado_civil'] ?? null;
-        $morada = $_POST['morada'] ?? null;
-        $provincia = $_POST['provincia'] ?? null;
-        $natural_de = $_POST['natural_de'] ?? null;
-        $filiacao = $_POST['filiacao'] ?? null;
-        $ocupacao = $_POST['ocupacao'] ?? null;
-        $nif = $_POST['nif'] ?? null;
-        $balanco = $_POST['balanco'] ?? null;
 
-        // Upload de arquivos
-        $foto_bi = null;
-        if (!empty($_FILES['foto_bi']['name'])) {
-            $foto_bi = 'uploads/' . basename($_FILES['foto_bi']['name']);
-            move_uploaded_file($_FILES['foto_bi']['tmp_name'], $foto_bi);
-        }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        $img = null;
-        if (!empty($_FILES['img']['name'])) {
-            $img = 'uploads/' . basename($_FILES['img']['name']);
-            move_uploaded_file($_FILES['img']['tmp_name'], $img);
-        }
+    $bi             = $_POST['bi'] ?? null;
+    $nome           = $_POST['nome'] ?? null;
+    $genero         = $_POST['genero'] ?? null;
+    $nascimento     = $_POST['Nascimento'] ?? null;
+    $altura         = $_POST['altura'] ?? null;
+    $tipo           = $_POST['tipo'] ?? null;
+    $estado_civil   = $_POST['estado_civil'] ?? null;
+    $morada         = $_POST['morada'] ?? null;
+    $provincia      = $_POST['provincia'] ?? null;
+    $natural_de     = $_POST['natural_de'] ?? null;
+    $filiacao       = $_POST['filiacao'] ?? null;
+    $ocupacao       = $_POST['ocupacao'] ?? null;
+    $nif            = $_POST['nif'] ?? null;
+    $balanco        = $_POST['balanco'] ?? null;
 
-        // Executa a actualização
-        $sqlUpdate = "UPDATE cliente SET bi, nome, genero, nascimento,
-        altura, estado_civil, morada, provincia, natural_de, 
-        filiacao, ocupacao, foto_bi, nif, balanco, img WHERE identificador = ?";
-        $stmt = $conn->prepare($sqlUpdate);
-        $stmt->execute([
-            // $identificador,
-            $bi,
-            $nome,
-            $genero,
-            $nascimento,
-            $altura,
-            $estado_civil,
-            $morada,
-            $provincia,
-            $natural_de,
-            $filiacao,
-            $ocupacao,
-            $nif,
-            $balanco
-        ]);
+    $foto_bi = null;
+    if (!empty($_FILES['foto_bi']['name'])) {
+        $foto_bi = 'uploads/' . basename($_FILES['foto_bi']['name']);
+        move_uploaded_file($_FILES['foto_bi']['tmp_name'], $foto_bi);
+    }
 
-        if (!$stmt) {
-            die("Erro ao preparar a consulta: " . $conn->error);
-        }
+    $img = null;
+    if (!empty($_FILES['img']['name'])) {
+        $img = 'uploads/' . basename($_FILES['img']['name']);
+        move_uploaded_file($_FILES['img']['tmp_name'], $img);
+    }
 
-        // Executa a consulta
-        if ($stmt->execute()) {
-            echo "Registo actualizado com sucesso!";
-            // Redireciona para a página de clientes (descomente se necessário)
-            header("Location: clientes.php");
-            exit;
-        } else {
-            echo "Erro na actualização: " . $stmt->error;
-        }
-    }        // Fecha a declaração
+    $sqlUpdate = "UPDATE cliente SET
+        bi = ?, 
+        nome = ?, 
+        genero = ?, 
+        nascimento = ?, 
+        altura = ?, 
+        tipo = ?, 
+        estado_civil = ?, 
+        morada = ?, 
+        provincia = ?, 
+        natural_de = ?, 
+        filiacao = ?, 
+        ocupacao = ?, 
+        foto_bi = ?, 
+        nif = ?, 
+        balanco = ?, 
+        img = ?
+        WHERE identificador = ?"; // Adicionado o WHERE
 
+    $stmt = $conn->prepare($sqlUpdate);
+
+    if (!$stmt) {
+        die("Erro ao preparar a consulta: " . $conn->error);
+    }
+
+    $stmt->bind_param("sssssssssssssdssi",  // Tipos de dados corretos
+        $bi, $nome, $genero, $nascimento, $altura, $tipo, $estado_civil, $morada,
+        $provincia, $natural_de, $filiacao, $ocupacao, $foto_bi, $nif, $balanco, $img, $id); // Passando $id
+
+    if ($stmt->execute()) {
+        echo "Registo actualizado com sucesso!";
+        header("Location: clientes.php"); // Redirecionamento
+        exit;
+    } else {
+        echo "Erro na actualização: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+
+$conn->close();
 
 ?>
 
@@ -163,6 +162,8 @@ if (isset($_GET['id'])) {
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="nome">Nome</label>
+                                            <input class="form-control" name="identificador" value="<?= $cliente['identificador'] ?>">
+
                                             <input type="text" class="form-control" id="nome" name="nome" required value="<?php echo $cliente['nome']; ?>">
                                         </div>
                                         <div class="form-group col-md-6">
@@ -240,6 +241,14 @@ if (isset($_GET['id'])) {
                                         <div class="form-group col-md-6">
                                             <label for="filiacao">Filiação</label>
                                             <input type="text" class="form-control" id="filiacao" name="filiacao" required value="<?= htmlspecialchars($cliente['filiacao']) ?>">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="Tipo">Tipo</label>
+                                            <select class="form-control" id="Tipo" name="Tipo" required value="<?= htmlspecialchars($cliente['Tipo']) ?>">
+                                                <option value="Normal">Cliente Normal</option>
+                                                <option value="Empresa">Cliente Empresa</option>
+                                                <option value="Agente">Cliente Agente</option>
+                                            </select>
                                         </div>
                                     </div>
 

@@ -1,12 +1,63 @@
 <!-- inicialize the db -->
 <?php
 
+$conn = new mysqli("localhost", "root", "", "fetafacil");
+if ($conn->connect_error) {
+    die("Erro de conexão: " . $conn->connect_error);
+}
+
+// -----------------------------------------------------
+// 1) Consultar DEPÓSITOS
+// -----------------------------------------------------
+$sqlDepositos = "
+SELECT 
+DAYOFWEEK(STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y')) AS diaIndex,
+SUM(total) AS somaDepositos
+FROM deposito
+WHERE STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y') >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+GROUP BY DAYOFWEEK(STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y'))
+ORDER BY DAYOFWEEK(STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y'))
+";
+$resultDep = $conn->query($sqlDepositos);
+
+$depositosPorDia = []; // [1 => 100, 2 => 200, ...]
+if ($resultDep) {
+    while ($row = $resultDep->fetch_assoc()) {
+        $diaIndex = (int)$row['diaIndex'];
+        $depositosPorDia[$diaIndex] = (float)$row['somaDepositos'];
+    }
+}
+
+// -----------------------------------------------------
+// 2) Consultar LEVANTAMENTOS
+// -----------------------------------------------------
+$sqlLevantamentos = "
+SELECT 
+DAYOFWEEK(STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y')) AS diaIndex,
+SUM(total) AS somaLevantamentos
+FROM levantamento
+WHERE STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y') >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+GROUP BY DAYOFWEEK(STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y'))
+ORDER BY DAYOFWEEK(STR_TO_DATE(CONCAT(dia, '-', mes, '-', ano), '%d-%m-%Y'))
+";
+$resultLev = $conn->query($sqlLevantamentos);
+
+$levantamentosPorDia = [];
+if ($resultLev) {
+    while ($row = $resultLev->fetch_assoc()) {
+        $diaIndex = (int)$row['diaIndex'];
+        $levantamentosPorDia[$diaIndex] = (float)$row['somaLevantamentos'];
+    }
+}
+
+
+
 session_start();
 if (/* isset($_SESSION['REST-admin']) */true) {
 
-// Verifica se há uma mensagem de sucesso na sessão e exibe
-if (isset($_SESSION['mensagem_sucesso'])) {
-    echo '
+    // Verifica se há uma mensagem de sucesso na sessão e exibe
+    if (isset($_SESSION['mensagem_sucesso'])) {
+        echo '
     <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 600px; font-size: 1.2rem; z-index: 9999;">
         <strong>Sucesso!</strong> ' . $_SESSION['mensagem_sucesso'] . '
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -21,9 +72,9 @@ if (isset($_SESSION['mensagem_sucesso'])) {
         }, 5000);
     </script>
     ';
-    // Limpa a mensagem de sucesso após exibi-la
-    unset($_SESSION['mensagem_sucesso']);
-}
+        // Limpa a mensagem de sucesso após exibi-la
+        unset($_SESSION['mensagem_sucesso']);
+    }
 
 ?>
     <!DOCTYPE html>
@@ -72,7 +123,7 @@ if (isset($_SESSION['mensagem_sucesso'])) {
                 <!-- Main Content -->
                 <div class="main-content">
                     <section class="section">
-                        <div class="section-body">
+                        <div class="section-body ">
                             <br>
                             <!-- ROW 1 -->
                             <div class="container">
@@ -123,18 +174,21 @@ if (isset($_SESSION['mensagem_sucesso'])) {
                                                         <?php foreach ($dados as $dado): ?>
                                                             <li>
                                                                 <a href="cliente.php?id=
-                                                                <?= htmlspecialchars($dado['identificador']) ?>" 
-                                                                class="btn btn-info" style="margin-left: 10px;">Ver</a><br>
+                                                                <?= htmlspecialchars($dado['identificador']) ?>"
+                                                                    class="btn btn-info" style="margin-left: 10px;">Ver</a><br>
                                                                 <strong> <?= htmlspecialchars($dado['nome']) ?></strong><br>
                                                                 <?= htmlspecialchars($dado['genero']) ?> <br>
-                                                                 <?= htmlspecialchars($dado['bi']) ?>
+                                                                <?= htmlspecialchars($dado['bi']) ?>
                                                             </li>
                                                         <?php endforeach; ?>
                                                     </ul>
                                                 <?php elseif (isset($_GET['termo'])): ?>
-                                                    <p style="margin-top: 10px; color:#333; font-weight:700;">Nenhum resultado encontrado para "<strong><?= htmlspecialchars($_GET['termo']) ?></strong>".</p>
+                                                    <p style="margin-top: 10px; color:#333; font-weight:700;">Nenhum resultado
+                                                        encontrado para
+                                                        "<strong><?= htmlspecialchars($_GET['termo']) ?></strong>".</p>
                                                 <?php else: ?>
-                                                    <p style="margin-top: 10px; color: #2c72ce; font-weight:700;">Digite algo acima para iniciar a pesquisa...</p>
+                                                    <p style="margin-top: 10px; color: #2c72ce; font-weight:700;">Digite algo
+                                                        acima para iniciar a pesquisa...</p>
                                                 <?php endif; ?>
 
                                             </div>
@@ -144,18 +198,66 @@ if (isset($_SESSION['mensagem_sucesso'])) {
                                         <label>Contas</label>
                                         <div class="card">
                                             <div class="card-body">
+                                                <?php
+                                                $conn = new mysqli("localhost", "root", "", "fetafacil");
+                                                if ($conn->connect_error) {
+                                                    die("Erro de conexão: " . $conn->connect_error);
+                                                }
+
+                                                // Exemplo de nomes de colunas: 
+                                                // Tabela "deposito": id, cliente_id, total
+                                                // Tabela "cliente": id, nome, tipo
+
+                                                // 1. Soma total de todos os depósitos (sem filtrar tipo)
+                                                $sqlTodas = "SELECT SUM(d.total) AS soma 
+                                                            FROM deposito d
+                                                            JOIN cliente c ON d.cliente_identificador = c.identificador";
+                                                $resultTodas = $conn->query($sqlTodas);
+                                                $rowTodas = $resultTodas->fetch_assoc();
+                                                $todas = $rowTodas['soma'] ?? 0;
+
+                                                // 2. Soma total de Particulares
+                                                $sqlParticulares = "SELECT SUM(d.total) AS soma
+                                                                    FROM deposito d
+                                                                    JOIN cliente c ON d.cliente_identificador = c.identificador
+                                                                    WHERE c.tipo = 'Agente'";
+                                                $resultParticulares = $conn->query($sqlParticulares);
+                                                $rowParticulares = $resultParticulares->fetch_assoc();
+                                                $particulares = $rowParticulares['soma'] ?? 0;
+
+                                                // 3. Soma total de Empresa
+                                                $sqlEmpresa = "SELECT SUM(d.total) AS soma
+                                                            FROM deposito d
+                                                            JOIN cliente c ON d.cliente_identificador = c.identificador
+                                                            WHERE c.tipo = 'Empresa'";
+                                                $resultEmpresa = $conn->query($sqlEmpresa);
+                                                $rowEmpresa = $resultEmpresa->fetch_assoc();
+                                                $empresa = $rowEmpresa['soma'] ?? 0;
+
+                                                $conn->close();
+                                                ?>
+
                                                 <div class="info-display">
-                                                    <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                        <span>Todas:</span> <span
-                                                            style="float:right;margin-top: 12px;">500.000</span>
+                                                    <div class="info-item">
+                                                        <span class="info-icon">&#9432;</span>
+                                                        <span>Todas:</span>
+                                                        <span style="float:right;margin-top: 12px;">
+                                                            <?= number_format($todas, 2, '.', ',') ?>
+                                                        </span>
                                                     </div>
-                                                    <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                        <span>Particulares:</span> <span
-                                                            style="float:right;margin-top: 12px;">500.000</span>
+                                                    <div class="info-item">
+                                                        <span class="info-icon">&#9432;</span>
+                                                        <span>Particulares:</span>
+                                                        <span style="float:right;margin-top: 12px;">
+                                                            <?= number_format($particulares, 2, '.', ',') ?>
+                                                        </span>
                                                     </div>
-                                                    <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                        <span>Empresa:</span> <span
-                                                            style="float:right;margin-top: 12px;">500.000</span>
+                                                    <div class="info-item">
+                                                        <span class="info-icon">&#9432;</span>
+                                                        <span>Empresa:</span>
+                                                        <span style="float:right;margin-top: 12px;">
+                                                            <?= number_format($empresa, 2, '.', ',') ?>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -182,35 +284,169 @@ if (isset($_SESSION['mensagem_sucesso'])) {
                                         <label>Caixa</label>
                                         <div class="card">
                                             <div class="card-body">
-                                                <div class="container mt-3">
-                                                    <div class="row mb-4">
-                                                        <div class="col-md-6"> <select class="form-control" id="year">
-                                                                <option value="2024">2024</option>
-                                                                <option value="2023">2023</option>
-                                                                <!-- Adicione mais anos conforme necessário -->
-                                                            </select> </div>
-                                                        <div class="col-md-6"> <select class="form-control" id="month">
-                                                                <option value="Janeiro">Janeiro</option>
-                                                                <option value="Fevereiro">Fevereiro</option>
-                                                                <!-- Adicione mais meses conforme necessário -->
-                                                            </select> </div>
+                                                <form method="GET" action="">
+                                                    <div class="container mt-3">
+                                                        <div class="row mb-4">
+                                                            <div class="col-md-6">
+                                                                <select class="form-control" name="year">
+                                                                    <option value="2025">2025</option>
+                                                                    <option value="2024">2024</option>
+                                                                    <option value="2023">2023</option>
+                                                                    <!-- etc. -->
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <select class="form-control" name="month">
+                                                                    <option value="Janeiro">Janeiro</option>
+                                                                    <option value="Fevereiro">Fevereiro</option>
+                                                                    <option value="Março">Março</option>
+                                                                    <option value="Abril">Abril</option>
+                                                                    <option value="Maio">Maio</option>
+                                                                    <option value="Junho">Junho</option>
+                                                                    <option value="Julho">Julho</option>
+                                                                    <option value="Agosto">Agosto</option>
+                                                                    <option value="Setembro">Setembro</option>
+                                                                    <option value="Outubro">Outubro</option>
+                                                                    <option value="Novembro">Novembro</option>
+                                                                    <option value="Dezembro">Dezembro</option>
+                                                                    <!-- Ajuste para todos os meses -->
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Pesquisar</button>
                                                     </div>
+                                                </form>
+                                                <?php
+                                                if (isset($_GET['year']) && isset($_GET['month'])) {
+
+                                                    // Mapeia o nome do mês para número, se necessário
+                                                    // Se na nossa tabela, 'mes' já for '01', '02', etc., e o <option> do HTML
+                                                    // for algo como "Fevereiro", precisamos converter.
+                                                    // Exemplo do mapeamento (adaptando ao nosso caso):
+                                                    $monthMap = [
+                                                        'Janeiro'   => '01',
+                                                        'Fevereiro' => '02',
+                                                        'Março'     => '03',
+                                                        'Abril'     => '04',
+                                                        'Maio'      => '05',
+                                                        'Junho'     => '06',
+                                                        'Julho'     => '07',
+                                                        'Agosto'    => '08',
+                                                        'Setembro'  => '09',
+                                                        'Outubro'   => '10',
+                                                        'Novembro'  => '11',
+                                                        'Dezembro'  => '12',
+                                                    ];
+
+                                                    // Resgata o ano e mês selecionados
+                                                    $selectedYear = $_GET['year'];
+                                                    $selectedMonth = $_GET['month'];
+
+                                                    // Se o usuário escolheu "Janeiro", converte para "01"
+                                                    if (isset($monthMap[$selectedMonth])) {
+                                                        $mes = $monthMap[$selectedMonth];
+                                                    } else {
+                                                        // Se o <option> já for o número (ex: "03"), use direto
+                                                        $mes = $selectedMonth;
+                                                    }
+
+                                                    // Agora vamos buscar os totais no banco
+                                                    $conn = new mysqli("localhost", "root", "", "fetafacil");
+                                                    if ($conn->connect_error) {
+                                                        die("Erro de conexão: " . $conn->connect_error);
+                                                    }
+
+                                                    // 1) Soma de depósitos
+                                                    $sqlDepositos = "SELECT SUM(total) AS somaDepositos
+                                                                 FROM deposito
+                                                                 WHERE mes = '$mes' AND ano = '$selectedYear'";
+                                                    $resultDep = $conn->query($sqlDepositos);
+                                                    $rowDep = $resultDep->fetch_assoc();
+                                                    $entrada = $rowDep['somaDepositos'] ?? 0;
+
+                                                    // 2) Soma de levantamentos
+                                                    $sqlLevantamentos = "SELECT SUM(total) AS somaLevantamentos
+                                                                     FROM levantamento
+                                                                     WHERE mes = '$mes' AND ano = '$selectedYear'";
+                                                    $resultLev = $conn->query($sqlLevantamentos);
+                                                    $rowLev = $resultLev->fetch_assoc();
+                                                    $saida = $rowLev['somaLevantamentos'] ?? 0;
+
+                                                    // Exemplo de cálculo para "Central" e "Ativos" (caso queira)
+                                                    // Aqui vamos supor que "Central" é (Entrada - Saída)
+                                                    // e "Ativos" é só um exemplo de 10% do valor que sobrou. Ajuste como quiser.
+                                                    $central = $entrada - $saida;
+                                                    $ativos  = $central * 0.10; // Exemplo: 10% de "Central"
+
+                                                    $conn->close();
+
+                                                    // -----------------------------------------------------
+                                                    // 3) Montar arrays fixos para a semana
+                                                    //    1=Dom,2=Seg,3=Ter,4=Qua,5=Qui,6=Sex,7=Sáb
+                                                    // -----------------------------------------------------
+                                                    $mapDias = [
+                                                        1 => 'Dom',
+                                                        2 => 'Seg',
+                                                        3 => 'Ter',
+                                                        4 => 'Qua',
+                                                        5 => 'Qui',
+                                                        6 => 'Sex',
+                                                        7 => 'Sáb'
+                                                    ];
+
+                                                    // Arrays finais para o Chart.js
+                                                    $labels = [];
+                                                    $arrayDepositos = [];
+                                                    $arrayLevantamentos = [];
+
+                                                    // Preenchemos do diaIndex=1 até 7, garantindo que haja valor (mesmo que 0)
+                                                    for ($i = 1; $i <= 7; $i++) {
+                                                        $labels[] = $mapDias[$i];
+                                                        $arrayDepositos[] = $depositosPorDia[$i] ?? 0;
+                                                        $arrayLevantamentos[] = $levantamentosPorDia[$i] ?? 0;
+                                                    }
+
+                                                    // Converter para JSON
+                                                    $jsLabels         = json_encode($labels);
+                                                    $jsDepositos      = json_encode($arrayDepositos);
+                                                    $jsLevantamentos  = json_encode($arrayLevantamentos);
+
+                                                ?>
                                                     <div class="financial-summary">
-                                                        <div class="financial-item"> <span class="label">Entrada:</span>
-                                                            <span class="value text-success">500,000</span>
+                                                        <div class="financial-item">
+                                                            <span class="label">Entrada:</span>
+                                                            <span class="value text-success">
+                                                                <?= number_format($entrada, 2, '.', ',') ?>
+                                                            </span>
                                                         </div>
-                                                        <div class="financial-item"> <span class="label">Saida:</span> <span
-                                                                class="value text-danger">0</span> </div>
+                                                        <div class="financial-item">
+                                                            <span class="label">Saida:</span>
+                                                            <span class="value text-danger">
+                                                                <?= number_format($saida, 2, '.', ',') ?>
+                                                            </span>
+                                                        </div>
                                                         <hr>
-                                                        <div class="financial-item"> <span class="label">Central:</span>
-                                                            <span class="value text-danger">470,000</span>
+                                                        <div class="financial-item">
+                                                            <span class="label">Central:</span>
+                                                            <span class="value text-danger">
+                                                                <?= number_format($central, 2, '.', ',') ?>
+                                                            </span>
                                                         </div>
-                                                        <div class="financial-item"> <span class="label">Ativos:</span>
-                                                            <span class="value text-cyan">30,000</span>
+                                                        <div class="financial-item">
+                                                            <span class="label">Ativos:</span>
+                                                            <span class="value text-cyan">
+                                                                <?= number_format($ativos, 2, '.', ',') ?>
+                                                            </span>
                                                         </div>
+
+
+                                                    <?php
+                                                } else {
+                                                    // Se não tiver nada selecionado ainda, pode exibir algo fixo ou vazio
+                                                    echo "<p class='mt-3'>Selecione o ano e o mês para ver os valores.</p>";
+                                                }
+                                                    ?>
                                                     </div>
-                                                    <br>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -301,6 +537,42 @@ if (isset($_SESSION['mensagem_sucesso'])) {
             </div>
         </div>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Pegar arrays do PHP (já em JSON)
+                const labels = <?php echo $jsLabels; ?>;
+                const depositos = <?php echo $jsDepositos; ?>;
+                const levantamentos = <?php echo $jsLevantamentos; ?>;
+
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: 'Depósitos',
+                                data: depositos,
+                                backgroundColor: 'green'
+                            },
+                            {
+                                label: 'Levantamentos',
+                                data: levantamentos,
+                                backgroundColor: 'red'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+
         <!-- General JS Scripts -->
         <script src="assets/modules/jquery.min.js"></script>
         <script src="assets/modules/popper.js"></script>
@@ -321,10 +593,12 @@ if (isset($_SESSION['mensagem_sucesso'])) {
         <script src="assets/modules/select2/dist/js/select2.full.min.js"></script>
         <script src="assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <!-- Template JS File 
+        <!-- Template JS File         
     -->
+
         <script src="assets/js/scripts.js"></script>
         <script src="assets/js/custom.js"></script>
+
         <style>
             .financial-summary {
                 background-color: #fff;
@@ -377,7 +651,13 @@ if (isset($_SESSION['mensagem_sucesso'])) {
                 margin-right: 10px;
             }
         </style>
-        <script>
+
+        
+    </body>
+
+    </html>
+
+    <script>
             document.addEventListener('DOMContentLoaded', function() {
                 var ctx = document.getElementById('myChart').getContext('2d');
                 var myChart = new Chart(ctx, {
@@ -442,10 +722,7 @@ if (isset($_SESSION['mensagem_sucesso'])) {
 
             $(".search-element").show();
         </script>
-    </body>
 
-    </html>
-<?php } else { ?>
     <!DOCTYPE html>
     <html lang="en">
 
@@ -503,4 +780,5 @@ if (isset($_SESSION['mensagem_sucesso'])) {
 
     </html>
 
-<?php }
+<?php } else {
+}
