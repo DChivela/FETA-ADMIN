@@ -1,6 +1,11 @@
 <!-- inicialize the db -->
 <?php
-
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 // Conexão à base de dados
 $conn = new mysqli("localhost", "root", "", "fetafacil");
 
@@ -35,8 +40,6 @@ $resultado = $conn->query($sql);
 
 // Fecha a conexão
 $conn->close();
-
-session_start();
 
 ?>
 <!DOCTYPE html>

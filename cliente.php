@@ -1,5 +1,13 @@
 <!-- inicialize the db -->
 <?php
+
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
+
 // Verifica se o termo foi enviado
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);

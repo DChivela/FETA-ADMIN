@@ -1,6 +1,13 @@
 <?php
 // search.php
-
+//O session deve estar acima de qualquer código, sendo assim a primeira linha para verificar a sessão do usuário
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    exit;
+    }
 // Verifica se o termo foi enviado
 if (isset($_GET['termo'])) {
     $termo = htmlspecialchars($_GET['termo']); // Sanitiza o termo para evitar injeções de código

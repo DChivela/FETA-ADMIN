@@ -1,8 +1,13 @@
 <!-- inicialize the db -->
 <?php
 
-// lista_clientes.php
-
+//O session deve estar acima de qualquer código, sendo assim a primeira linha para verificar a sessão do usuário
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 // Dados de conexão
 $host     = 'localhost';
 $dbname   = 'fetafacil';
@@ -36,10 +41,6 @@ try {
     echo "Erro na conexão: " . $e->getMessage();
     exit;
 }
-
-
-
-session_start();
 if (/* isset($_SESSION['REST-admin']) */true) {
 
 

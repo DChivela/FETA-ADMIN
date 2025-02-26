@@ -1,6 +1,11 @@
 <!-- inicialize the db -->
 <?php
-
+session_start();
+ if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 $conn = new mysqli("localhost", "root", "", "fetafacil");
 if ($conn->connect_error) {
     die("Erro de conexão: " . $conn->connect_error);
@@ -52,7 +57,7 @@ if ($resultLev) {
 
 
 
-session_start();
+
 if (/* isset($_SESSION['REST-admin']) */true) {
 
     // Verifica se há uma mensagem de sucesso na sessão e exibe

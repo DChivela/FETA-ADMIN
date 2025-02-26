@@ -1,7 +1,6 @@
 <?php
 #error_reporting(1);
-
-
+session_start();
 include("../Funcoes.php");
 include("../Administrador.php");
 if(isset($_POST['email']) and isset($_POST['passe'])){
@@ -20,14 +19,12 @@ if(isset($_POST['email']) and isset($_POST['passe'])){
         
         $metadata = $administrador->getByEmail($email);
         
-        session_start();
-        $_SESSION['mintel-admin'] = true;
+
+        $_SESSION['feta-admin'] = true;
         $_SESSION['metadata'] = $metadata;
         header('Location: ../clientes.php');
 
     }else{
         header('Location: ../clientes.php?erro=1');
     }
-
-
 }

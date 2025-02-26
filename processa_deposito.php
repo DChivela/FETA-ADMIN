@@ -1,6 +1,11 @@
 <?php
 
 session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 
 // processa_levantamento.php
 

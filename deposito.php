@@ -1,8 +1,12 @@
 <!-- inicialize the db -->
 <?php
-
-// lista_clientes.php
-
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
+    
 // Dados de conexão
 $host     = 'localhost';
 $dbname   = 'fetafacil';
@@ -37,9 +41,6 @@ try {
     exit;
 }
 
-
-
-session_start();
 if (/* isset($_SESSION['REST-admin']) */true) {
 
 

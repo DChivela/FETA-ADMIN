@@ -1,12 +1,18 @@
 
 <!-- inicialize the db -->
 <?php
-session_set_cookie_params(['path' => '/']);
+//O session deve estar acima de qualquer código, sendo assim a primeira linha para verificar a sessão do usuário
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-session_start();
+
 
 if(isset($_SESSION['mintel-admin'])){
 
