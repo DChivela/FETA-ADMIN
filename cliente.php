@@ -143,21 +143,62 @@ if (/* isset($_SESSION['REST-admin']) */true) {
                                             <label></label>
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <div class="info-display">
-                                                        <div class="info-item" style="font-weight:bold;"> <span
-                                                                class="info-icon">&#9432;</span>
-                                                            <span>Saldo atual:</span> <span
-                                                                style="float:right;margin-top: 12px;">500.000</span>
-                                                        </div>
-                                                        <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                            <span>Conta:</span> <span
-                                                                style="float:right;margin-top: 12px;">Particular</span>
-                                                        </div>
-                                                        <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                            <span>Desde:</span> <span
-                                                                style="float:right;margin-top: 12px;">23H76M766 17843</span>
-                                                        </div>
+                                                <?php
+                                                // Conexão com o banco de dados
+                                                $conn = new mysqli("localhost", "root", "", "fetafacil");
+                                                if ($conn->connect_error) {
+                                                    die("Erro de conexão: " . $conn->connect_error);
+                                                }
+
+                                                // Obtém o identificador do cliente (pode ser passado via GET, por exemplo)
+                                                $cliente_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+                                                if ($cliente_id <= 0) {
+                                                    die("Identificador de cliente inválido.");
+                                                }
+
+                                                // 1. Buscar informações do cliente (nome, tipo, nascimento)
+                                                $sqlCliente = "SELECT nome, tipo, nascimento FROM cliente WHERE identificador = $cliente_id";
+                                                $resultCliente = $conn->query($sqlCliente);
+                                                if (!$resultCliente || $resultCliente->num_rows === 0) {
+                                                    die("Cliente não encontrado.");
+                                                }
+                                                $cliente = $resultCliente->fetch_assoc();
+
+                                                // 2. Soma total dos depósitos do cliente
+                                                $sqlDepositos = "SELECT SUM(total) AS soma_depositos FROM deposito WHERE cliente_identificador = $cliente_id";
+                                                $resultDepositos = $conn->query($sqlDepositos);
+                                                $rowDepositos = $resultDepositos->fetch_assoc();
+                                                $totalDepositos = $rowDepositos['soma_depositos'] ?? 0;
+
+                                                // 3. Soma total dos levantamentos do cliente
+                                                $sqlLevantamentos = "SELECT SUM(total) AS soma_levantamentos FROM levantamento WHERE cliente_identificador = $cliente_id";
+                                                $resultLevantamentos = $conn->query($sqlLevantamentos);
+                                                $rowLevantamentos = $resultLevantamentos->fetch_assoc();
+                                                $totalLevantamentos = $rowLevantamentos['soma_levantamentos'] ?? 0;
+
+                                                // 4. Calcular o saldo atual
+                                                $saldoAtual = $totalDepositos - $totalLevantamentos;
+
+                                                $conn->close();
+                                                ?>
+
+                                                <div class="info-display">
+                                                    <div class="info-item" style="font-weight:bold;">
+                                                        <span class="info-icon">&#9432;</span>
+                                                        <span>Saldo atual:</span>
+                                                        <span style="float:right;margin-top: 12px;"><?php echo number_format($saldoAtual, 2, ',', '.'); ?></span>
                                                     </div>
+                                                    <div class="info-item">
+                                                        <span class="info-icon">&#9432;</span>
+                                                        <span>Conta:</span>
+                                                        <span style="float:right;margin-top: 12px;"><?php echo htmlspecialchars($cliente['tipo']); ?></span>
+                                                    </div>
+                                                    <div class="info-item">
+                                                        <span class="info-icon">&#9432;</span>
+                                                        <span>Desde:</span>
+                                                        <span style="float:right;margin-top: 12px;"><?php echo htmlspecialchars($cliente['nascimento']); ?></span>
+                                                    </div>
+                                                </div>
                                                 </div>
                                         <!-- <a class="btn btn-lg btn-primary form-control" href="createCliente.php">Cadastrar Clientes</a> -->
                                     </div>
