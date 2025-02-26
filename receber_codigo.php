@@ -8,7 +8,7 @@
             <title>Receber codigo de recuperação</title>
         </head>
         <body>
-            <form action="BackEnd/Administrador/receber_codigo.php" method="post">
+            <form action="php/Administrador/receber_codigo.php" method="post">
                 <section class="vh-100" style="background-color: #ffffff;">
                 <div class="container py-5 h-100">
                     <div class="row d-flex justify-content-center align-items-center h-100">

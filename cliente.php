@@ -39,10 +39,9 @@ if (isset($_GET['id'])) {
 
 session_start();
 if (/* isset($_SESSION['REST-admin']) */true) {
-
-
-
 ?>
+
+
     <!DOCTYPE html>
     <html lang="PT-pt">
 

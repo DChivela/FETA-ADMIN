@@ -1,7 +1,20 @@
+
 <!-- inicialize the db -->
 <?php
+session_set_cookie_params(['path' => '/']);
 
-// Conexão à base de dados
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
+
+if(isset($_SESSION['mintel-admin'])){
+
+
+?>
+<?php } else { include "banco.php";
+    
+    // Conexão à base de dados
 $conn = new mysqli("localhost", "root", "", "fetafacil");
 
 if ($conn->connect_error) {
@@ -28,9 +41,8 @@ $resultado = $conn->query($sql);
 // Fecha a conexão
 $conn->close();
 
-session_start();
+    ?>
 
-?>
 <!DOCTYPE html>
 <html lang="PT-pt">
 
@@ -260,4 +272,5 @@ session_start();
 </style>
 
 </html>
-<?php
+<?php } 
+

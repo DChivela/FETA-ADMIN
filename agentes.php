@@ -2,33 +2,41 @@
 <?php
 
 // Conexão à base de dados
-// $conn = new mysqli("localhost", "root", "", "fetafacil");
+$conn = new mysqli("localhost", "root", "", "fetafacil");
 
-// if ($conn->connect_error) {
-//     die("Erro de conexão: " . $conn->connect_error);
-// }
+if ($conn->connect_error) {
+    die("Erro de conexão: " . $conn->connect_error);
+}
 
 // $limite = 5;
 // $pagina = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 // $offset = ($pagina - 1) * $limite;
 
 
-// Query para obter o total de clientes
-// $sqlTotal = "SELECT COUNT(*) AS total FROM cliente";
-// $stmt = $conn->prepare($sqlTotal);
-// $stmt->execute();
-// $stmt->bind_result($totalClientes);
-// $stmt->fetch();
-// $stmt->close();
+// Query para obter os totais geral e por tipo
+$sqlTotal = "
+    SELECT 
+        COUNT(*) AS totalClientes,
+        SUM(CASE WHEN tipo = 'Agente' THEN 1 ELSE 0 END) AS totalAgentes,
+        SUM(CASE WHEN tipo = 'Normal' THEN 1 ELSE 0 END) AS totalNormais,
+        SUM(CASE WHEN tipo = 'Empresa' THEN 1 ELSE 0 END) AS totalEmpresas
+    FROM cliente
+";
+
+$stmt = $conn->prepare($sqlTotal);
+$stmt->execute();
+$stmt->bind_result($totalClientes, $totalAgentes, $totalNormais, $totalEmpresas);
+$stmt->fetch();
+$stmt->close();
 
 // Query de pesquisa (ajustar para sua estrutura de tabelas)
-// $sql = "SELECT * FROM cliente LIMIT $limite OFFSET $offset";
-// $resultado = $conn->query($sql);
+$sql = "SELECT * FROM cliente";
+$resultado = $conn->query($sql);
 
 // Fecha a conexão
-// $conn->close();
+$conn->close();
 
-// session_start();
+session_start();
 
 ?>
 <!DOCTYPE html>
@@ -57,14 +65,14 @@
     <!-- Start GA -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
 
-    gtag('config', 'UA-94034622-3');
+        gtag('config', 'UA-94034622-3');
     </script>
     <!-- /END GA -->
 </head>
@@ -79,8 +87,13 @@
                 <section class="section">
                     <div class="section-body">
                         <style>
-                            a{color:#aaa;}
-                            a:hover {text-decoration: none}
+                            a {
+                                color: #aaa;
+                            }
+
+                            a:hover {
+                                text-decoration: none
+                            }
                         </style>
                         <br>
                         <!-- ROW 1 -->
@@ -88,46 +101,48 @@
                             <div class="row row-cols-2">
                                 <div class="col-8">
                                     <label></label>
-                                            <div class="container">
-                                                <a class="card" href="agente.php">
+                                    <?php if ($resultado->num_rows > 0): ?>
+                                        <div class="container">
+                                            <?php while ($cliente = $resultado->fetch_assoc()): ?>
+                                                <a class="card" id="nome" href="agente.php?id=<?= htmlspecialchars($cliente['identificador']) ?>">
                                                     <div class="card-body">
-                                                        <h5 style="margin:0;">Agente um <span style="font-size:9px;font-weight:light">Super</span></h5>
-                                                        <p style="margin:0;">Luanda, Luanda</p>
+                                                        <h5 style="margin:0;">
+                                                            <?= htmlspecialchars($cliente['nome']) ?>
+                                                            <span style="font-size:9px;font-weight:light"><?= htmlspecialchars($cliente['tipo']) ?></span>
+                                                        </h5>
+                                                        <p style="margin:0;"><?= htmlspecialchars($cliente['morada']) ?></p>
                                                     </div>
                                                 </a>
-                                                <a class="card" href="agente.php">
-                                                    <div class="card-body">
-                                                        <h5 style="margin:0;">Agente Dois <span style="font-size:9px;font-weight:light">Normal</span></h5>
-                                                        <p style="margin:0;">Huambo, Cahala</p>
-                                                    </div>
-                                                </a>
-                                                <a class="card" href="agente.php">
-                                                    <div class="card-body">
-                                                        <h5 style="margin:0;">Agente Dois <span style="font-size:9px;font-weight:light">Normal</span></h5>
-                                                        <p style="margin:0;">Huila, Lubango</p>
-                                                    </div>
-                                                </a>
-                                            </div>
+                                            <?php endwhile; ?>
                                         </div>
+                                    <?php else: ?>
+                                        <p>Nenhum agente encontrado</p>
+                                    <?php endif; ?>
+                                </div>
+
                                 <div class="col-4">
                                     <label></label>
                                     <div class="card">
                                         <div class="card-body">
+
                                             <div class="info-display">
-                                                <div class="info-item" style="font-weight:bold;"> <span
-                                                        class="info-icon">&#9432;</span>
-                                                    <span>Todos:</span> <span
-                                                        style="float:right;margin-top: 12px;">50</span>
+                                                <div class="info-item" style="font-weight:bold;">
+                                                    <span class="info-icon">&#9432;</span>
+                                                    <span>Todos:</span>
+                                                    <span style="float:right;margin-top: 12px;"><?= $totalClientes; ?></span>
                                                 </div>
-                                                <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                    <span>Super agente:</span> <span
-                                                        style="float:right;margin-top: 12px;">10</span>
+                                                <div class="info-item">
+                                                    <span class="info-icon">&#9432;</span>
+                                                    <span>Super agente:</span>
+                                                    <span style="float:right;margin-top: 12px;"><?= $totalAgentes; ?></span>
                                                 </div>
-                                                <div class="info-item"> <span class="info-icon">&#9432;</span>
-                                                    <span>Agente normal:</span> <span
-                                                        style="float:right;margin-top: 12px;">40</span>
+                                                <div class="info-item">
+                                                    <span class="info-icon">&#9432;</span>
+                                                    <span>Agente normal:</span>
+                                                    <span style="float:right;margin-top: 12px;"><?= $totalNormais; ?></span>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -137,14 +152,14 @@
                         </div>
 
                         <!-- /ROW 1 -->
-                       
-                                
+
+
                 </section>
             </div>
             <!-- footer include here -->
-            <?php 
-        include("footer.php");
-      ?>
+            <?php
+            include("footer.php");
+            ?>
         </div>
     </div>
 
@@ -184,7 +199,7 @@
             </div>
             <div class="modal-body">
                 <h1>Confirmar
-                levantamento</h1>
+                    levantamento</h1>
                 <button type="button" class="btn btn-primary form-control">Confirmar por aplicativo</button> <br><br>
                 <button type="button" class="btn btn-info form-control">Confirmar por USSD</button>
             </div>
@@ -195,42 +210,42 @@
     </div>
 </div>
 <style>
-.info-display {
-    border-radius: 10px;
-    background-color: #fff;
-}
+    .info-display {
+        border-radius: 10px;
+        background-color: #fff;
+    }
 
-.info-item {
-    padding: 10px 0;
-    font-size: 1.2rem;
-}
+    .info-item {
+        padding: 10px 0;
+        font-size: 1.2rem;
+    }
 
-.info-item:not(:last-child) {
-    border-bottom: 1px solid #ddd;
-}
+    .info-item:not(:last-child) {
+        border-bottom: 1px solid #ddd;
+    }
 
-.info-icon {
-    font-size: 1.5em;
-    margin-right: 10px;
-}
+    .info-icon {
+        font-size: 1.5em;
+        margin-right: 10px;
+    }
 
-.form-group {
-    margin-bottom: 15px;
-}
+    .form-group {
+        margin-bottom: 15px;
+    }
 
-.form-group input {
-    font-size: 2rem;
-    text-align: center;
-    border: 2px solid #ced4da;
-    border-radius: 0.25rem;
-    padding: 10px;
-}
+    .form-group input {
+        font-size: 2rem;
+        text-align: center;
+        border: 2px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 10px;
+    }
 
-/*.erro-info {}*/
+    /*.erro-info {}*/
 
-.erro-info span {
-    font-size: 3.5rem;
-}
+    .erro-info span {
+        font-size: 3.5rem;
+    }
 </style>
 
 </html>

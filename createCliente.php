@@ -10,11 +10,6 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Atualização: recebe o identificador via campo oculto
-    $identificador = $_POST['identificador'] ?? null;
-    if (!$identificador) {
-        die("Identificador não informado.");
-    }
 
     // Captura dos dados do formulário
     $bi           = $_POST['bi'] ?? null;
@@ -44,34 +39,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         move_uploaded_file($_FILES['img']['tmp_name'], $img);
     }
 
-    // Prepara a query de UPDATE (não atualiza o identificador)
-    $sql = "UPDATE cliente SET
-                bi = ?,
-                nome = ?,
-                genero = ?,
-                nascimento = ?,
-                altura = ?,
-                tipo = ?,
-                estado_civil = ?,
-                morada = ?,
-                provincia = ?,
-                natural_de = ?,
-                filiacao = ?,
-                ocupacao = ?,
-                foto_bi = ?,
-                nif = ?,
-                balanco = ?,
-                img = ?
-            WHERE identificador = ?";
+    // Prepara a query de INSERT
+    $sql = "INSERT INTO cliente (
+                bi, nome, genero, nascimento, altura, tipo, estado_civil, morada, provincia, natural_de, filiacao, ocupacao, foto_bi, nif, balanco, img
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         die("Erro ao preparar a consulta: " . $conn->error);
     }
 
-    // Todos os parâmetros são tratados como string (ajuste se necessário)
+    // Todos os parâmetros são tratados como string (ajuste conforme necessário)
     $stmt->bind_param(
-        "sssssssssssssssss",
+        "ssssssssssssssss",
         $bi,
         $nome,
         $genero,
@@ -87,60 +69,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $foto_bi,
         $nif,
         $balanco,
-        $img,
-        $identificador
+        $img
     );
 
     if ($stmt->execute()) {
         header("Location: clientes.php");
         exit;
     } else {
-        echo "Erro na atualização: " . $stmt->error;
+        echo "Erro na inserção: " . $stmt->error;
     }
 
     $stmt->close();
 } else {
-    // Se o método for GET, carrega os dados do cliente para pré-preenchimento
-    if (!isset($_GET['identificador'])) {
-        die("Identificador não informado.");
-    }
-    $identificador = $_GET['identificador'];
-
-    $sql = "SELECT * FROM cliente WHERE identificador = ?";
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        die("Erro ao preparar a consulta: " . $conn->error);
-    }
-    $stmt->bind_param("s", $identificador);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-    $cliente = $resultado->fetch_assoc();
-    if (!$cliente) {
-        die("Cliente não encontrado.");
-    }
-    // Armazena os valores para o formulário
-    $bi           = $cliente['bi'];
-    $nome         = $cliente['nome'];
-    $genero       = $cliente['genero'];
-    $nascimento   = $cliente['nascimento'];
-    $altura       = $cliente['altura'];
-    $tipo         = $cliente['tipo'];
-    $estado_civil = $cliente['estado_civil'];
-    $morada       = $cliente['morada'];
-    $provincia    = $cliente['provincia'];
-    $natural_de   = $cliente['natural_de'];
-    $filiacao     = $cliente['filiacao'];
-    $ocupacao     = $cliente['ocupacao'];
-    $nif          = $cliente['nif'];
-    $balanco      = $cliente['balanco'];
-    // Os campos de arquivos (foto_bi e img) não podem ser pré-preenchidos
-    $stmt->close();
+    // Exibe o formulário de criação (HTML pode ser incluído aqui ou em outro arquivo)
+    echo "Acesse o formulário de criação.";
 }
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="PT-pt">
+
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
@@ -151,6 +101,7 @@ $conn->close();
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/components.css">
 </head>
+
 <body>
     <div id="app">
         <div class="main-wrapper main-wrapper-1">
@@ -161,33 +112,30 @@ $conn->close();
                         <br>
                         <div class="card">
                             <div class="card-body">
-                                <form action="updateCliente.php" method="POST" enctype="multipart/form-data">
-                                    <!-- Campo oculto para o identificador -->
-                                    <input type="hidden" name="identificador" value="<?= htmlspecialchars($identificador) ?>">
-                                    
+                                <form action="createCliente.php" method="POST" enctype="multipart/form-data">
                                     <!-- Grupo 1 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="nome">Nome</label>
-                                            <input type="text" class="form-control" id="nome" name="nome" required value="<?= htmlspecialchars($nome) ?>">
+                                            <input type="text" class="form-control" id="nome" name="nome" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="bi">BI</label>
-                                            <input type="text" class="form-control" id="bi" name="bi" required value="<?= htmlspecialchars($bi) ?>">
+                                            <input type="text" class="form-control" id="bi" name="bi" required value="">
                                         </div>
                                     </div>
                                     <!-- Grupo 2 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="Nascimento">Data de Nascimento</label>
-                                            <input type="date" class="form-control" id="Nascimento" name="Nascimento" required value="<?= htmlspecialchars($nascimento) ?>">
+                                            <input type="date" class="form-control" id="Nascimento" name="Nascimento" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="genero">Gênero</label>
                                             <select class="form-control" id="genero" name="genero" required>
-                                                <option value="Masculino" <?= ($genero=="Masculino") ? "selected" : "" ?>>Masculino</option>
-                                                <option value="Feminino" <?= ($genero=="Feminino") ? "selected" : "" ?>>Feminino</option>
-                                                <option value="Outro" <?= ($genero=="Outro") ? "selected" : "" ?>>Outro</option>
+                                                <option value="Masculino" selected>Masculino</option>
+                                                <option value="Feminino">Feminino</option>
+                                                <option value="Outro">Outro</option>
                                             </select>
                                         </div>
                                     </div>
@@ -195,58 +143,58 @@ $conn->close();
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="nif">NIF</label>
-                                            <input type="text" class="form-control" id="nif" name="nif" required value="<?= htmlspecialchars($nif) ?>">
+                                            <input type="text" class="form-control" id="nif" name="nif" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="estado_civil">Estado Civil</label>
-                                            <input type="text" class="form-control" id="estado_civil" name="estado_civil" value="<?= htmlspecialchars($estado_civil) ?>">
+                                            <input type="text" class="form-control" id="estado_civil" name="estado_civil" value="">
                                         </div>
                                     </div>
                                     <!-- Grupo 4 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="provincia">Província</label>
-                                            <input type="text" class="form-control" id="provincia" name="provincia" required value="<?= htmlspecialchars($provincia) ?>">
+                                            <input type="text" class="form-control" id="provincia" name="provincia" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="natural_de">Município</label>
-                                            <input type="text" class="form-control" id="natural_de" name="natural_de" required value="<?= htmlspecialchars($natural_de) ?>">
+                                            <input type="text" class="form-control" id="natural_de" name="natural_de" required value="">
                                         </div>
                                     </div>
                                     <!-- Grupo 5 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="morada">Morada / Bairro</label>
-                                            <input type="text" class="form-control" id="morada" name="morada" required value="<?= htmlspecialchars($morada) ?>">
+                                            <input type="text" class="form-control" id="morada" name="morada" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="altura">Altura</label>
-                                            <input type="number" class="form-control" id="altura" name="altura" required value="<?= htmlspecialchars($altura) ?>">
+                                            <input type="number" class="form-control" id="altura" name="altura" required value="">
                                         </div>
                                     </div>
                                     <!-- Grupo 6 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="ocupacao">Ocupação</label>
-                                            <input type="text" class="form-control" id="ocupacao" name="ocupacao" required value="<?= htmlspecialchars($ocupacao) ?>">
+                                            <input type="text" class="form-control" id="ocupacao" name="ocupacao" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="balanco">Balanço</label>
-                                            <input type="text" class="form-control" id="balanco" name="balanco" required value="<?= htmlspecialchars($balanco) ?>">
+                                            <input type="text" class="form-control" id="balanco" name="balanco" required value="">
                                         </div>
                                     </div>
                                     <!-- Grupo 7 -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="filiacao">Filiação</label>
-                                            <input type="text" class="form-control" id="filiacao" name="filiacao" required value="<?= htmlspecialchars($filiacao) ?>">
+                                            <input type="text" class="form-control" id="filiacao" name="filiacao" required value="">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="tipo">Tipo</label>
                                             <select class="form-control" id="tipo" name="tipo" required>
-                                                <option value="Normal" <?= ($tipo=="Normal") ? "selected" : "" ?>>Cliente Normal</option>
-                                                <option value="Empresa" <?= ($tipo=="Empresa") ? "selected" : "" ?>>Cliente Empresa</option>
-                                                <option value="Agente" <?= ($tipo=="Agente") ? "selected" : "" ?>>Cliente Agente</option>
+                                                <option value="Normal" selected>Cliente Normal</option>
+                                                <option value="Empresa">Cliente Empresa</option>
+                                                <option value="Agente">Cliente Agente</option>
                                             </select>
                                         </div>
                                     </div>
@@ -261,9 +209,10 @@ $conn->close();
                                             <input type="file" class="form-control" id="img" name="img">
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary float-right">Atualizar cliente</button>
+                                    <button type="submit" class="btn btn-primary float-right">Cadastrar cliente</button>
                                 </form>
                             </div>
+
                         </div>
                     </div>
                 </section>
@@ -279,4 +228,5 @@ $conn->close();
     <script src="assets/js/scripts.js"></script>
     <script src="assets/js/custom.js"></script>
 </body>
+
 </html>

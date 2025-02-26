@@ -8,7 +8,7 @@
             <title>Nova palavra passe</title>
         </head>
         <body>
-            <form action="BackEnd/Administrador/nova_passe.php" method="post">
+            <form action="php/Administrador/nova_passe.php" method="post">
                 <input type="hidden" name="email" value="<?php echo $_GET['email']; ?>">
                 <input type="hidden" name="codigo" value="<?php echo $_GET['codigo']; ?>">
                 <section class="vh-100" style="background-color: #ffffff;">

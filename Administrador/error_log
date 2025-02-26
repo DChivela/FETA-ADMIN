@@ -1,0 +1,12 @@
+[13-May-2024 09:36:56 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[28000] [1045] Access denied for user 'root'@'localhost' (using password: NO) in /mnt/HC_Volume_27346916/mintela1/admin/php/Funcoes.php:82
+Stack trace:
+#0 /mnt/HC_Volume_27346916/mintela1/admin/php/Funcoes.php(82): PDO->__construct()
+#1 /mnt/HC_Volume_27346916/mintela1/admin/php/Administrador/entrar.php(14): Funcoes::conexao()
+#2 {main}
+  thrown in /mnt/HC_Volume_27346916/mintela1/admin/php/Funcoes.php on line 82
+[13-May-2024 09:38:16 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[28000] [1045] Access denied for user 'root'@'localhost' (using password: NO) in /mnt/HC_Volume_27346916/mintela1/admin/php/Funcoes.php:82
+Stack trace:
+#0 /mnt/HC_Volume_27346916/mintela1/admin/php/Funcoes.php(82): PDO->__construct()
+#1 /mnt/HC_Volume_27346916/mintela1/admin/php/Administrador/entrar.php(14): Funcoes::conexao()
+#2 {main}
+  thrown in /mnt/HC_Volume_27346916/mintela1/admin/php/Funcoes.php on line 82

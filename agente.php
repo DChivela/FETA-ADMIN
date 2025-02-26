@@ -1,12 +1,49 @@
 <!-- inicialize the db -->
 <?php
 
+
+// Verifica se o termo foi enviado
+if (isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    // Conexão à base de dados
+    $conn = new mysqli("localhost", "root", "", "fetafacil");
+
+    if ($conn->connect_error) {
+        die("Erro de conexão: " . $conn->connect_error);
+    }
+
+    // Query para obter o total de clientes
+    $sqlTotal = "SELECT COUNT(*) AS total FROM cliente";
+    $stmt = $conn->prepare($sqlTotal);
+    $stmt->execute();
+    $stmt->bind_result($totalClientes); //para armazenar o total
+    $stmt->fetch();
+    $stmt->close();
+
+    // Busca os detalhes do cliente pelo ID
+    $sql = "SELECT * FROM cliente WHERE identificador = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+    // Armazena os resultados
+    $cliente = $resultado->fetch_assoc();
+
+    // Fecha a conexão
+    $stmt->close();
+    $conn->close();
+} else {
+    //Redireciona para a página caso nenhum ID seja encontrado.
+    header("Location: index.php");
+    exit;
+}
+
 session_start();
-if (/* isset($_SESSION['REST-admin']) */ true) {
-
-   
-
+if (/* isset($_SESSION['REST-admin']) */true) {
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -65,10 +102,14 @@ if (/* isset($_SESSION['REST-admin']) */ true) {
                                             <div class="container">
                                                 <div class="row">
                                                     <div class="col-12">
+                                                    <?php if (!empty($cliente)): ?>
                                                         <button class="btn btn-sm btn-primary">INFO</button>
-                                                        <h5 style="margin:0;"><br>Super Junior Chess</h5>
-                                                        <p style="margin:0;">AI7684009AH090</p>
-                                                        <p style="margin:0;">999 888 777</p>
+                                                        <h5 style="margin:0;"><br><?= htmlspecialchars($cliente['nome']) ?></h5>
+                                                        <p style="margin:0;"><?= htmlspecialchars($cliente['nif']) ?></p>
+                                                        <p style="margin:0;"><?= htmlspecialchars($cliente['morada']) ?></p>
+                                                        <?php else: ?>
+                                                    <p>Cliente não encontrado.</p>
+                                                <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </div>
