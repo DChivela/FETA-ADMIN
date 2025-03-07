@@ -45,7 +45,7 @@ if (isset($_GET['id'])) {
     exit;
 }
 
-session_start();
+
 if (/* isset($_SESSION['REST-admin']) */true) {
 ?>
 

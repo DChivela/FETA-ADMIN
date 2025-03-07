@@ -105,7 +105,7 @@ try {
     $_SESSION['mensagem_sucesso'] = "deposito registrado com sucesso!";
 
     // Opcional: redirecionar após alguns segundos
-    header("Location: index.php");
+    header("Location: home.php");
     exit(); // Encerrar o script após o redirecionamento
 
 } catch (PDOException $e) {

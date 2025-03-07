@@ -4,7 +4,7 @@
 // if(!isset($_SESSION['feta-admin'])){
 //     // Caso não tenha sessão iniciada
 //     // leva direto na pagina inicial.
-//     header('Location: index.php');
+//     header('Location: home.php');
 //     }
 
 if (true) {
@@ -31,7 +31,7 @@ if (true) {
     
   </form>
   <ul class="navbar-nav navbar-right">
-     <form action="index.php" method="GET" class="form-inline mr-auto">
+     <form action="home.php" method="GET" class="form-inline mr-auto">
        
     <div class="search-element" style="display:none;">
       <button class="btn" type="reset" style="border-radius: 20px 0 0 20px;min-height: 30px;height: 30px;padding:0 10px;background: #F5F7FA;"><i class="fas fa-search" style="opacity: .4;"></i></button>
@@ -55,10 +55,10 @@ if (true) {
 <div class="main-sidebar sidebar-style-2">
   <aside id="sidebar-wrapper">
     <div class="sidebar-brand">
-      <a href="index.php">FETA FÁCIL</a>
+      <a href="home.php">FETA FÁCIL</a>
     </div>
     <div class="sidebar-brand sidebar-brand-sm">
-      <a href="index.html"></a>
+      <a href="home.html"></a>
     </div>
     <ul class="sidebar-menu">
       <li class="menu-header"></li>
