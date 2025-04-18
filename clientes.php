@@ -1,7 +1,26 @@
+
 <!-- inicialize the db -->
 <?php
+//O session deve estar acima de qualquer código, sendo assim a primeira linha para verificar a sessão do usuário
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 
-// Conexão à base de dados
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
+if(isset($_SESSION['mintel-admin'])){
+
+
+?>
+<?php } else { include "banco.php";
+    
+    // Conexão à base de dados
 $conn = new mysqli("localhost", "root", "", "fetafacil");
 
 if ($conn->connect_error) {
@@ -28,9 +47,8 @@ $resultado = $conn->query($sql);
 // Fecha a conexão
 $conn->close();
 
-session_start();
+    ?>
 
-?>
 <!DOCTYPE html>
 <html lang="PT-pt">
 
@@ -260,4 +278,5 @@ session_start();
 </style>
 
 </html>
-<?php
+<?php } 
+

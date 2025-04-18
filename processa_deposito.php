@@ -1,6 +1,11 @@
 <?php
 
 session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
 
 // processa_levantamento.php
 
@@ -100,7 +105,7 @@ try {
     $_SESSION['mensagem_sucesso'] = "deposito registrado com sucesso!";
 
     // Opcional: redirecionar após alguns segundos
-    header("Location: index.php");
+    header("Location: home.php");
     exit(); // Encerrar o script após o redirecionamento
 
 } catch (PDOException $e) {

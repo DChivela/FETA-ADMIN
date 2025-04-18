@@ -1,4 +1,13 @@
 <?php
+
+session_start();
+if(!isset($_SESSION['feta-admin'])){
+    // Caso não tenha sessão iniciada
+    // leva direto na pagina inicial.
+    header('Location: index.php');
+    }
+
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -162,7 +171,7 @@ $conn->close();
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="nome">Nome</label>
-                                            <input class="form-control" name="identificador" value="<?= $cliente['identificador'] ?>">
+                                            <input class="form-control" hidden name="identificador" value="<?= $cliente['identificador'] ?>">
 
                                             <input type="text" class="form-control" id="nome" name="nome" required value="<?php echo $cliente['nome']; ?>">
                                         </div>

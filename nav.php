@@ -1,4 +1,12 @@
 <?php
+
+// session_start();
+// if(!isset($_SESSION['feta-admin'])){
+//     // Caso não tenha sessão iniciada
+//     // leva direto na pagina inicial.
+//     header('Location: home.php');
+//     }
+
 if (true) {
 
     $metadata = [];
@@ -23,7 +31,7 @@ if (true) {
     
   </form>
   <ul class="navbar-nav navbar-right">
-     <form action="index.php" method="GET" class="form-inline mr-auto">
+     <form action="home.php" method="GET" class="form-inline mr-auto">
        
     <div class="search-element" style="display:none;">
       <button class="btn" type="reset" style="border-radius: 20px 0 0 20px;min-height: 30px;height: 30px;padding:0 10px;background: #F5F7FA;"><i class="fas fa-search" style="opacity: .4;"></i></button>
@@ -47,19 +55,21 @@ if (true) {
 <div class="main-sidebar sidebar-style-2">
   <aside id="sidebar-wrapper">
     <div class="sidebar-brand">
-      <a href="index.php">FETA FÁCIL</a>
+      <a href="home.php">FETA FÁCIL</a>
     </div>
     <div class="sidebar-brand sidebar-brand-sm">
-      <a href="index.html"></a>
+      <a href="home.html"></a>
     </div>
     <ul class="sidebar-menu">
       <li class="menu-header"></li>
-      <li><a class="nav-link" href="index.php"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+      <li><a class="nav-link" href="home.php"><i class="fas fa-home"></i><span>Inicio</span></a></li>
       <li><a class="nav-link" href="levantamento.php"><i class="fas fa-file-invoice-dollar"></i><span>Levantamento</span></a></li>
       <li><a class="nav-link" href="deposito.php"><i class="fas fa-hand-holding-usd"></i> <span>Deposito</span></a></li>
       <li><a class="nav-link" href="ativos.php"><i class="fas fa-chart-line"></i><span>Ativos</span></a></li>
       <li><a class="nav-link" href="agentes.php"><i class="fas fa-user"></i><span>Agentes</span></a></li>
-      <li><a class="nav-link" href="clientes.php"><i class="fas fa-user"></i><span>Clientes</span></a></li>
+      <li><a class="nav-link" href="clientes.php"><i class="fas fa-users"></i><span>Clientes</span></a></li>
+      <!-- <li><a class="nav-link" href="login.php"><i class="fas fa-user"></i><span>Login</span></a></li> -->
+      <li><a class="nav-link" href="logout.php"><i class="fa fa-outdent" aria-hidden="true"></i><span>Sair</span></a></li>
     </ul>
 
   </aside>
